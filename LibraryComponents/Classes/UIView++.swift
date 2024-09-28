@@ -15,8 +15,8 @@ class DeclarativeView {
         let values = Dictionary(grouping: Mirror(reflecting: data).children, by: \.label).mapValues{$0.first?.value}
         let properties = values["data"] as?  [SwiftUI._ViewDebug.Property: Any] ?? [:]
         let childData = values["childData"] as? [SwiftUI._ViewDebug.Data] ?? []
-        let subviews = childData.map(DeclarativeView.init(from:))
-        self.init(properties, subviews)
+       // let subviews = childData.map(DeclarativeView.init(from:))
+        self.init(properties, [])
     }
     
     init(_ properties: [SwiftUI._ViewDebug.Property: Any], _ views: [DeclarativeView]) {
@@ -52,7 +52,7 @@ class DeclarativeView {
             print("\(prefix) {")
             let properties = Dictionary(grouping: Mirror(reflecting: item).children, by: \.label).compactMapValues{ $0.first?.value }
             
-            if let frame = unwrap_optional(properties["frame"], as: CGRect.self) {
+            if let frame = properties["frame"] as? CGRect {
                 print("\(prefix)  frame:", frame)
                 node.frame = frame
             }
