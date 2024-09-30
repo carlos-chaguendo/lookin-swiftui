@@ -55,6 +55,29 @@ class TextContent: ContentRepresentable {
                     "value": font.pointSize,
                     "valueType": "number",
                 ])
+                
+                result.append([
+                    "section": "\(Section.text.rawValue)\(partCount)",
+                    "title": "Font Line Height",
+                    "value": font.lineHeight,
+                    "valueType": "number",
+                ])
+            }
+            
+            if let paragraph = attributes[.paragraphStyle] as? NSParagraphStyle {
+                result.append([
+                    "section": "\(Section.text.rawValue)\(partCount)",
+                    "title": "Line Height",
+                    "value": max(paragraph.minimumLineHeight, paragraph.maximumLineHeight),
+                    "valueType": "number",
+                ])
+                
+                result.append([
+                    "section": "\(Section.text.rawValue)\(partCount)",
+                    "title": "Line Height Multiple",
+                    "value": paragraph.lineHeightMultiple,
+                    "valueType": "number",
+                ])
             }
             
             result.append([
