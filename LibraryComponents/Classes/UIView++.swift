@@ -71,6 +71,10 @@ public extension UIView {
                     .map(DeclarativeView.init(from:))
                 print(view)
                 
+                return [
+                    "debug": view.map { $0.nodes.map{ $0.debugInfo} }
+                ]
+                
             }
         }
         

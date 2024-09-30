@@ -19,7 +19,7 @@ extension CALayer {
     /// https://bytedance.feishu.cn/docx/TRridRXeUoErMTxs94bcnGchnlb
     @objc func lookin_customDebugInfos() -> [String:Any]? {
         guard
-            let delegate = self.delegate, String(describing: delegate).contains("Hosting")
+            let delegate = self.delegate, String(describing: delegate).contains("_UIHostingView")
         else { return nil}
 
         var statusProperty: [String:Any] = [
