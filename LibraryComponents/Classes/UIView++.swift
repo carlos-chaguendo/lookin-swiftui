@@ -5,98 +5,62 @@
 //
 import SwiftUI
 
-class DeclarativeView {
-    let className: String
-    let size: CGSize?
-    let nodes: [Node]
-    let children: [DeclarativeView]
-    
-    convenience init(from data: SwiftUI._ViewDebug.Data) {
-        let values = Dictionary(grouping: Mirror(reflecting: data).children, by: \.label).mapValues{$0.first?.value}
-        let properties = values["data"] as?  [SwiftUI._ViewDebug.Property: Any] ?? [:]
-        let childData = values["childData"] as? [SwiftUI._ViewDebug.Data] ?? []
-       // let subviews = childData.map(DeclarativeView.init(from:))
-        self.init(properties, [])
-    }
-    
-    init(_ properties: [SwiftUI._ViewDebug.Property: Any], _ views: [DeclarativeView]) {
-        children = views
-        className = String(describing: properties[.type]!)
-        size = properties[.size] as? CGSize
-        if let displayList = properties[.displayList] {
-            self.nodes = DeclarativeView.showDisplayList(displayList, prefix: " " )
-        } else {
-            self.nodes = []
-        }
-        /*
-        print("\(prefix) type:", className)
-        print("\(prefix) size:", size)
-        print("\(prefix) position:", properties[.position])
-        print("\(prefix) value-type:", className)
-    
-        if String(describing: properties[.type]!) == String(describing: SwiftUI.Text.self) {
-            print("\(prefix) value:", properties[.value]!)
-        }
-        
-        if String(describing: properties[.type]!) == "StyledTextContentView" {
-            print("\(prefix) value:", properties[.value]!)
-        }
-        */
-    }
 
-    internal static func showDisplayList(_ data: Any,prefix: String) -> [Node] {
-        let values = Dictionary(grouping: Mirror(reflecting: data).children, by: \.label).mapValues{$0.first?.value}
-        guard let items = values["items"] as?  [Any] else { return []}
-        return items.map { item in
-            let node = Node()
-            print("\(prefix) {")
-            let properties = Dictionary(grouping: Mirror(reflecting: item).children, by: \.label).compactMapValues{ $0.first?.value }
-            
-            if let frame = properties["frame"] as? CGRect {
-                print("\(prefix)  frame:", frame)
-                node.frame = frame
-            }
-            
-            if let value = properties["value"], let content = getContent(for: value) {
-                node.content = content
-            }
-            print("\(prefix) }")
-            return node
-        }
-    }
-    
-    internal static func getContent(for data: Any) -> ContentRepresentable? {
-        guard let content = Mirror(reflecting: data).children.first?.value else { return nil}
-        let information = Dictionary(grouping: Mirror(reflecting: content).children, by: \.label).mapValues{$0.first?.value}
-        guard let value = unwrap_optional(information["value"]) else { return nil }
-        let attributes = Dictionary(grouping: Mirror(reflecting: value).children, by: \.label).mapValues{$0.first?.value}
-
-        
-        print("  attributes:", attributes.keys)
-        if let text = attributes["text"], let styledText = unwrap_optional(text) {
-            return TextContent(styledText)
-        }
-        
-        if let shape = attributes["shape"] {
-            print(" -shape", shape)
-        }
-        
-        if let color = attributes["color"] {
-            return ColorContent(color)
-        }
-        
-        return nil
-    }
-}
-
-class Node {
-    var frame: CGRect?
-    var content: ContentRepresentable?
-    
-}
-
+//
 //_UIHostingView
 public extension UIView {
+    
+    
+    @objc func lookin_customDebugInfos() -> [String:Any]? {
+        let ret: [String: Any] = [
+            "properties": makeCustomProperties(),
+        ]
+        return ret
+    }
+    
+    private func makeCustomProperties() -> [Any] {
+        guard #available(iOS 14.0, *) else { return []}
+    
+        var response: [Any] = []
+        
+//        response.append([
+//            "section": Section.global.rawValue,
+//            "title": "name",
+//            "value": String(describing: type(of: self)),
+//            "valueType": "string",
+//        ])
+//        
+//        response.append([
+//            "section": Section.global.rawValue,
+//            "title": "id",
+//            "value": frame.debugDescription,
+//            "valueType": "string",
+//        ])
+        
+        if let info = StateManager.shared.nodes[self.frame.debugDescription] {
+            // Si tiene mas de un nodo significa que hay mas de un view en la misma position
+            if let node = info.first {
+                response.append(contentsOf: node.debugInfo)
+            }
+            
+            
+            response.append([
+                "section": Section.global.rawValue,
+                "title": "Source",
+                "value": info.map {$0.content?.source ?? "Any"}.joined(separator: "|"),
+                "valueType": "string",
+            ])
+        } else {
+//            response.append([
+//                "section": Section.global.rawValue,
+//                "title": "content",
+//                "value": frame.debugDescription,
+//                "valueType": "string",
+//            ])
+        }
+
+        return response
+    }
     
     @objc func p() -> [String: Any]? {
         

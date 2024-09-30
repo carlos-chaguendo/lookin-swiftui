@@ -19,79 +19,42 @@ extension CALayer {
     /// https://bytedance.feishu.cn/docx/TRridRXeUoErMTxs94bcnGchnlb
     @objc func lookin_customDebugInfos() -> [String:Any]? {
         guard
-            let delegate = self.delegate, String(describing: delegate).contains("_UIHostingView")
+            let delegate = self.delegate, String(describing: delegate).contains("Hosting")
         else { return nil}
+
+        var statusProperty: [String:Any] = [
+            "section": Section.global.rawValue,
+            "title": "Status",
+            "valueType": "string"
+        ]
+
+        if #available(iOS 14.0, *),  let debug = delegate as? ViewDebug  {
+            StateManager.shared.load(for: debug)
+            statusProperty["value"] = "Loaded"
+        } else {
+            statusProperty["value"] = "Unavailable"
+        }
         
+        var idsProperty: [String:Any] = [
+            "section": Section.global.rawValue,
+            "title": "identifiers",
+            "valueType": "string"
+        ]
         
+        if #available(iOS 14.0, *) {
+           idsProperty["value"] = StateManager.shared.nodes.keys.joined(separator: "|")
+        } else {
+            idsProperty["value"] = "xx"
+        }
+
         let ret: [String:Any] = [
-            // 可选项。这些信息会在 Lookin 的右侧属性面板中被展示。
-            // Optional. These details will be displayed in the right-hand property panel of Lookin.
-            "properties": self.makeCustomProperties(),
-            // 可选项。这些信息会在 Lookin 左侧图层结构中被展示。
-            // Optional. This information will be displayed in the layer structure on the left side of Lookin.
+            "properties": [ statusProperty, idsProperty ],
             "subviews": self.makeCustomSubviews(),
-            // 可选项。该 View 实例在 Lookin 左侧图层树中的名字。
-            // Optional. The name of the view instance in the hierarchy panel on the left side of Lookin.
             "title": "SwiftUI-DebugView"
         ]
         return ret
     }
     
-    private func makeCustomProperties() -> [Any] {
-        // 更多类型示例参加 BirdView.swift
-        // See BirdView.swift for more examples
-        var numberProperty: [String:Any] = [
-            "section": "HorseInfo",
-            "title": "Age",
-            "value": 4.53,
-            "valueType": "number"
-        ]
-        let numberSetter: @convention(block)(NSNumber) -> Void = { newNumber in
-            print("Try to modify by Lookin. \(newNumber.doubleValue)")
-        }
-        numberProperty["retainedSetter"] = unsafeBitCast(numberSetter, to: AnyObject.self)
-
-        let jsonProperty: [String: Any] = [
-            "section": "Animal Info",
-            "title": "SkinJson",
-            "value": createSomeJson(),
-            "valueType": "json",
-        ]
-        
-        return [numberProperty, jsonProperty]
-    }
-    
-    private func createSomeJson() -> String {
-        let array = [
-            [
-                "title": "allowedBehaviors",
-                "desc": "HostingControllerAllowedBehaviors",
-                "details": [
-                    [
-                        "title": "rawValue",
-                        "desc": "0",
-                    ], [
-                        "title": "contentScrollViewBridge",
-                        "desc": "UIKitContentScrollViewBridge",
-                        "details": [
-                            [
-                                "title": "bridgeSetEdges",
-                                "desc": "[:]",
-                            ], [
-                                "title": "pixelLength",
-                                "desc": "0.33333333",
-                            ]],
-                    ]],
-            ],
-            [
-                "title": "scenePhase",
-                "desc": "active",
-            ],
-        ]
-        let jsonData = try! JSONSerialization.data(withJSONObject: array, options: [])
-        let jsonString = String(data: jsonData, encoding: .utf8)
-        return jsonString!
-    }
     
     func makeCustomSubviews() -> [Any] {
         let subview0: [String:Any] = [
