@@ -38,11 +38,11 @@ class DeclarativeView {
         print("\(prefix) value-type:", className)
     
         if String(describing: properties[.type]!) == String(describing: SwiftUI.Text.self) {
-            print("\(prefix) value:", properties[.value]!)
+            print("\(prefix) value SwiftUI.Text:", properties[.value]!)
         }
         
         if String(describing: properties[.type]!) == "StyledTextContentView" {
-            print("\(prefix) value:", properties[.value]!)
+            print("\(prefix) value StyledTextContentView:", properties[.value]!)
         }
         
     }
@@ -105,11 +105,11 @@ class DeclarativeView {
         print("\(prefix)  keys:", information.keys)
         
         if let value = unwrap_optional(information["value"]) {
-            let attributes = Dictionary(grouping: Mirror(reflecting: value).children, by: \.label).mapValues{$0.first?.value}
+            let attributes = Dictionary(grouping: Mirror(reflecting: value).children, by: { $0.label ?? "n/a"}).mapValues{$0.first!.value}
 
             print("  attributes:", attributes.keys)
-            if let text = attributes["text"], let styledText = unwrap_optional(text) {
-                return TextContent(styledText)
+            if let text = attributes["text"] {
+                return TextContent(text)
             }
             
             if let shape = attributes["shape"] {
@@ -122,6 +122,10 @@ class DeclarativeView {
             
             if let platformView = attributes["platformView"] {
                 
+            }
+            
+            if let image = attributes["image"] {
+                return ImageContent(image)
             }
         } else if let tupleB =  information[".1"],  let value = unwrap_optional(tupleB) {
             let nodes = getNodes(from: value as? [Any] ?? [], prefix: "\(prefix) \t")

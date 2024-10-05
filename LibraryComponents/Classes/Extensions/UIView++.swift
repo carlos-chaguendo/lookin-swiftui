@@ -63,24 +63,10 @@ public extension UIView {
     }
     
     @objc func p() -> [String: Any]? {
-        
-        if #available(iOS 14.0, *) {
-            if let debug = self as? ViewDebug {
-                let view = debug
-                    ._viewDebugData()
-                    .map(DeclarativeView.init(from:))
-                print(view)
-                
-                return [
-                    "debug": view.map { $0.nodes.map{ $0.debugInfo} }
-                ]
-                
-            }
-        }
-        
-        
+        let dynamic = Dynamic(self)
+        dynamic.tree()
         let ret: [String: Any] = [
-            "properties": "",
+            "properties": dynamic.properties.keys
         ]
         return ret
     }

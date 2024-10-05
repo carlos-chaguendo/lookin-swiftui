@@ -11,8 +11,9 @@ class TextContent: ContentRepresentable {
     let attributedText: NSAttributedString
 
     init?(_ data: Any) {
-        let values = Dictionary(grouping: Mirror(reflecting: data).children, by: \.label).mapValues{$0.first?.value}
-        guard let storage = unwrap_optional(values["storage"], as: NSAttributedString.self) else {
+        let dynamic = Dynamic(data)
+        let styledText =  Dynamic(dynamic[dynamicMember: ".0"]?.value ?? data)
+        guard let storage = styledText.storage?.value(as: NSAttributedString.self) else {
             return nil
         }
         self.attributedText = storage

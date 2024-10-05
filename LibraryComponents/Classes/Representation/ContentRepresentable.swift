@@ -8,6 +8,7 @@ import SwiftUI
 enum Section: String {
     case global = "SwiftUI"
     case text = "SwiftUI.Text"
+    case image = "SwiftUI.Image"
     case color = "SwiftUI.Color"
     case group = "SwiftUI.Group"
 }
