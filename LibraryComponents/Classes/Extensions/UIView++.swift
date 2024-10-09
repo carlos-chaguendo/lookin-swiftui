@@ -72,3 +72,12 @@ public extension UIView {
     }
     
 }
+
+extension NSObject {
+    @objc class func lookin_colorAlias() -> [AnyHashable : Any]? {
+        return [
+            "andes-color-caution": UIColor.red,
+        ]
+    }
+}
+

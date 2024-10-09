@@ -5,6 +5,17 @@
 //
 import SwiftUI
 
+extension Mirror {
+    var allChildren: [Child] {
+        var result:[Child] = []
+        result.append(contentsOf: self.children)
+        if let sup = superclassMirror {
+            result.append(contentsOf: sup.children)
+        }
+        return result
+    }
+}
+
 @dynamicMemberLookup
 class Dynamic: CustomDebugStringConvertible {
 
@@ -13,8 +24,8 @@ class Dynamic: CustomDebugStringConvertible {
     let value: Any
     
     public init(_ object: Any) {
-        let mirror = Mirror(reflecting: object)
-        self.properties = Dictionary(grouping: mirror.children, by: { $0.label ?? "unknow"}).compactMapValues{ $0.first!.value }
+        let mirror = Mirror(reflecting: object)        
+        self.properties = Dictionary(grouping: mirror.allChildren, by: { $0.label ?? "unknow"}).compactMapValues{ $0.first!.value }
         self.value = object
         self.mirror = mirror
     }
@@ -54,7 +65,7 @@ class Dynamic: CustomDebugStringConvertible {
 //                
 //                var items = visited
 //                items.insert(self.id)
-                Dynamic(data).tree("\(prefix)\t", visited: [])
+//                Dynamic(data).tree("\(prefix)\t", visited: [])
             } else {
                 print("nil")
             }
